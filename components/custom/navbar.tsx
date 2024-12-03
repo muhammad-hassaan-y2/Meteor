@@ -47,7 +47,6 @@ export const Navbar = async () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <ThemeToggle />
               </DropdownMenuItem>
               <DropdownMenuItem className="p-1 z-50">
                 <form
