@@ -6,12 +6,16 @@ export function AuthForm({
   children,
   defaultEmail = "",
 }: {
-  action: any;
+  action: (formData: FormData) => void;
   children: React.ReactNode;
   defaultEmail?: string;
 }) {
   return (
-    <form action={action} className="flex flex-col gap-4 px-4 sm:px-16">
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      action(formData);
+    }} className="flex flex-col gap-4 px-4 sm:px-16">
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="email"
@@ -51,3 +55,4 @@ export function AuthForm({
     </form>
   );
 }
+

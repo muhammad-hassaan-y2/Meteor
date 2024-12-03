@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -13,15 +12,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 import { login, register, type LoginActionState, type RegisterActionState } from "../actions";
 
-
-
 export default function AuthPage() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false); 
+  const [darkMode, setDarkMode] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
-  const [isSuccessful, setIsSuccessful] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [loginState, setLoginState] = useState<LoginActionState>({ status: "idle" });
@@ -31,30 +27,21 @@ export default function AuthPage() {
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
-  // Redirect on successful login or registration
   useEffect(() => {
-    if (state.status === "failed") {
+    if (state.status === "success") {
+      toast.success(authMode === "login" ? "Logged in successfully" : "Account created successfully");
+      router.push("/");
+    } else if (state.status === "failed") {
       setIsLoading(false);
-      toast.error(authMode === "login" ? "Invalid credentials!" : "Failed to create account");
+      toast.error(authMode === "login" ? "Invalid credentials" : "Failed to create account");
     } else if (state.status === "invalid_data") {
       setIsLoading(false);
-      toast.error("Failed validating your submission!");
+      toast.error("Invalid data submitted");
     } else if (state.status === "user_exists") {
       setIsLoading(false);
       toast.error("Account already exists");
-    } else if (state.status === "success") {
-      if (authMode === "register") {
-        toast.success("Account created successfully");
-      }
-      setIsSuccessful(true);
-      setIsLoading(false);
-
-      // Add delay to ensure state is synced before redirect
-      setTimeout(() => {
-        router.push("/");
-      }, 100); // Small delay to allow for proper session update
     }
-  }, [state.status, router, authMode]);
+  }, [state.status, authMode, router]);
 
   const handleLogin = async (formData: FormData) => {
     setLoginState({ status: "in_progress" });
@@ -107,7 +94,6 @@ export default function AuthPage() {
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
       <main className="relative min-h-screen flex flex-col items-center justify-center text-white dark:bg-gray-900 dark:text-gray-100">
-        {/* Header */}
         <Header />
         <button
           onClick={toggleDarkMode}
@@ -116,7 +102,6 @@ export default function AuthPage() {
           Toggle {darkMode ? "Light" : "Dark"} Mode
         </button>
 
-        {/* Content */}
         <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-black dark:text-gray-100">
             Meteor Linker
@@ -155,7 +140,6 @@ export default function AuthPage() {
           </Button>
         </div>
 
-        {/* Dialog */}
         <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
           <DialogContent className="sm:max-w-md dark:bg-gray-800 dark:text-gray-100">
             <DialogHeader>
@@ -163,7 +147,7 @@ export default function AuthPage() {
                 {authMode === "login" ? "Sign In" : "Sign Up"}
               </DialogTitle>
             </DialogHeader>
-            <AuthForm action={() => {}} defaultEmail={email}>
+            <AuthForm action={handleSubmit} defaultEmail={email}>
               <SubmitButton>
                 {authMode === "login" ? "Sign in" : "Sign up"}
               </SubmitButton>
@@ -190,3 +174,4 @@ export default function AuthPage() {
     </div>
   );
 }
+

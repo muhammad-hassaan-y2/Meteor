@@ -35,7 +35,9 @@ export async function POST(request: Request) {
   const result = await streamText({
     model: geminiProModel,
     system: `\n
-        - you help users book flights and finalize trips!
+        - you help users to plan trip, book flights and finalize destinations and calculate budgets!
+        - Your flow includes: choosing a destination, budgeting, booking flights, and finalizing trips.
+        - Recommend destinations based on trip type, preferences, and budget.
         - you also help users choose destinations by suggesting popular places based on preferences.
         - keep your responses concise and user-friendly.
         - after every tool call, summarize the result for the user in one sentence.
@@ -214,17 +216,10 @@ export async function POST(request: Request) {
         },
       },
       recommendDestinations: {
-        description: "Recommend destinations based on user preferences",
+        description: "Recommend destinations based on user preferences and budget",
         parameters: z.object({
-          tripType: z
-            .string()
-            .describe(
-              "Type of trip the user wants, e.g., 'adventure', 'beach', 'cultural', etc."
-            ),
-          budget: z
-            .number()
-            .optional()
-            .describe("User's budget for the trip (optional)."),
+          tripType: z.string().describe("Type of trip: adventure, beach, cultural, etc."),
+          budget: z.number().optional().describe("User's budget for the trip"),
         }),
         execute: async ({ tripType, budget }) => {
           // Mock implementation - replace with actual API integration for real recommendations
@@ -243,6 +238,7 @@ export async function POST(request: Request) {
               ];
         },
       },
+      
       finalizeTrip: {
         description: "Assist users in finalizing their trip plans",
         parameters: z.object({

@@ -2,7 +2,7 @@
 
 import { Attachment, Message } from "ai";
 import { useChat } from "ai/react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
@@ -32,6 +32,20 @@ export function Chat({
     useScrollToBottom<HTMLDivElement>();
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+  
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  const safeAppend = (...args: Parameters<typeof append>) => {
+    if (isMounted.current) {
+      append(...args);
+    }
+  };
 
   return (
     <div className="flex flex-row justify-center pb-4 md:pb-8 h-dvh bg-background">
@@ -69,10 +83,11 @@ export function Chat({
             attachments={attachments}
             setAttachments={setAttachments}
             messages={messages}
-            append={append}
+            append={safeAppend}
           />
         </form>
       </div>
     </div>
   );
 }
+

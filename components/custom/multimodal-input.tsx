@@ -21,9 +21,9 @@ import { Textarea } from "../ui/textarea";
 
 const suggestedActions = [
   {
-    title: "Want to book a flight",
+    title: "Lets plan trip",
     label: "from New York to California",
-    action: "Help me book a flight from New York to California",
+    action: "Lets Plan trip from New York to California",
   },
   {
     title: "Help me to plan",
@@ -153,37 +153,40 @@ export function MultimodalInput({
 
   return (
     <div className="relative w-full flex flex-col gap-4">
-      {messages.length === 0 &&
-        attachments.length === 0 &&
-        uploadQueue.length === 0 && (
-          <div className="grid sm:grid-cols-2 gap-4 w-full md:px-0 mx-auto md:max-w-[500px]">
-            {suggestedActions.map((suggestedAction, index) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.05 * index }}
-                key={index}
-                className={index > 1 ? "hidden sm:block" : "block"}
+    {messages.length === 0 &&
+      attachments.length === 0 &&
+      uploadQueue.length === 0 && (
+        <div className="grid sm:grid-cols-2 gap-4 w-full md:px-0 mx-auto md:max-w-[500px]">
+          {suggestedActions.map((suggestedAction, index) => (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ delay: 0.05 * index }}
+              key={index}
+              className={index > 1 ? "hidden sm:block" : "block"}
+            >
+              <button
+                onClick={() => {
+                  append({
+                    role: "user",
+                    content: suggestedAction.action,
+                  }).catch((error) => {
+                    console.error("Error appending message:", error);
+                    toast.error("Failed to send message. Please try again.");
+                  });
+                }}
+                className="border-none bg-muted/50 w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col"
               >
-                <button
-                  onClick={async () => {
-                    append({
-                      role: "user",
-                      content: suggestedAction.action,
-                    });
-                  }}
-                  className="border-none bg-muted/50 w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col"
-                >
-                  <span className="font-medium">{suggestedAction.title}</span>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {suggestedAction.label}
-                  </span>
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                <span className="font-medium">{suggestedAction.title}</span>
+                <span className="text-zinc-500 dark:text-zinc-400">
+                  {suggestedAction.label}
+                </span>
+              </button>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       <input
         type="file"
