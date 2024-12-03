@@ -1,18 +1,37 @@
 import { convertToCoreMessages, Message, streamText } from "ai";
-import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { geminiProModel } from "@/ai";
+import {
+  generateReservationPrice,
+  generateSampleFlightSearchResults,
+  generateSampleFlightStatus,
+  generateSampleSeatSelection,
+} from "@/ai/actions";
 import { auth } from "@/app/(auth)/auth";
-import { deleteChatById, getChatById, saveChat } from "@/db/queries";
+import {
+  createReservation,
+  deleteChatById,
+  getChatById,
+  getReservationById,
+  saveChat,
+} from "@/db/queries";
+import { generateUUID } from "@/lib/utils";
 
 export async function POST(request: Request) {
+  const { id, messages }: { id: string; messages: Array<Message> } =
+    await request.json();
+
   const session = await auth();
+
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const { id, messages }: { id: string; messages: Array<Message> } = await request.json();
-  const coreMessages = convertToCoreMessages(messages).filter(message => message.content.length > 0);
+  const coreMessages = convertToCoreMessages(messages).filter(
+    (message) => message.content.length > 0,
+  );
+
 
   const result = await streamText({
     model: geminiProModel,
