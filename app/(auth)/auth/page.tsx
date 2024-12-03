@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 import { AuthForm } from "@/components/custom/auth-form";
@@ -27,11 +27,17 @@ export default function AuthPage() {
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
-  useEffect(() => {
+  const handleRedirect = useCallback(() => {
     if (state.status === "success") {
       toast.success(authMode === "login" ? "Logged in successfully" : "Account created successfully");
       router.push("/");
-    } else if (state.status === "failed") {
+    }
+  }, [state.status, authMode, router]);
+
+  useEffect(() => {
+    handleRedirect();
+
+    if (state.status === "failed") {
       setIsLoading(false);
       toast.error(authMode === "login" ? "Invalid credentials" : "Failed to create account");
     } else if (state.status === "invalid_data") {
@@ -41,7 +47,7 @@ export default function AuthPage() {
       setIsLoading(false);
       toast.error("Account already exists");
     }
-  }, [state.status, authMode, router]);
+  }, [state.status, authMode, handleRedirect]);
 
   const handleLogin = async (formData: FormData) => {
     setLoginState({ status: "in_progress" });
